@@ -39,27 +39,33 @@ namespace DiamalayPOS.Screens.GVentesF
                     con.Open();
 
                     //TODO Something as sql commande to display any rows in dtgv
-                    using (SqlDataAdapter da = new SqlDataAdapter("usp_SELECT_AllOpearationData", con))
-                    {
+                    /* using (SqlDataAdapter da = new SqlDataAdapter("usp_SELECT_AllOpearationData", con))
+                     {
 
-                        DataTable dt = new DataTable();
-                        da.SelectCommand.CommandType = CommandType.StoredProcedure;
-                        da.Fill(dt);
-                        // test test on appelle notre methode qui retourne une datatable ici pour tester 
-                        datagridViewrpt.DataSource = getAllOperationByDateTime();
-                        
-                        
-                        // datagridview pour supprimer
+                         DataTable dt = new DataTable();
+                         da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                         da.Fill(dt);
+
+                         datagridViewrpt.DataSource = dt;
+
+                         // ajouter une collone supprimer au datagridview
+                         DataGridViewButtonColumn dtgvbtn = new DataGridViewButtonColumn();
+                         dtgvbtn.HeaderText = "Supprimer";
+                         dtgvbtn.Name = "supprimer";
+                         datagridViewrpt.Columns.Add(dtgvbtn);
+                     }*/
+
+                    using (DataTable dt = getAllOperationByDateTime())
+                    {
+                        //dt = getAllOperationByDateTime();
+
+                        datagridViewrpt.DataSource = dt;
+
+                        // ajouter une collone supprimer au datagridview
                         DataGridViewButtonColumn dtgvbtn = new DataGridViewButtonColumn();
                         dtgvbtn.HeaderText = "Supprimer";
                         dtgvbtn.Name = "supprimer";
                         datagridViewrpt.Columns.Add(dtgvbtn);
-
-                        /*// datagridviewcolumns pour le update/modifier
-                        DataGridViewButtonColumn dtgvbtn_update = new DataGridViewButtonColumn();
-                        dtgvbtn_update.HeaderText = "Modifier";
-                        dtgvbtn_update.Name = "modifier";
-                        datagridViewrpt.Columns.Add(dtgvbtn_update);*/
                     }
 
                 }
@@ -83,29 +89,7 @@ namespace DiamalayPOS.Screens.GVentesF
         private void Btn_rpt_exp_Click(object sender, EventArgs e)
         {
 
-            /// afficher un message de dialogue pour demander à l'utilisateur de choisir une date de report
-            /// 
-            /*DialogResult dr = MetroFramework.MetroMessageBox.Show(this, "\n\nDonner une date de rapport?", "REPORT MODULE | LOG OUT", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dr == DialogResult.Yes)
-            {
-                //YourEventsHere;
-            }
-            else
-            {
-                //YourElseEvents;
-            }*/
-
-            var picker = new DateTimePicker();
-            Form f = new Form();
-            f.Controls.Add(picker);
-
-            var result = f.ShowDialog();
-            if (result == DialogResult.OK)
-            {
-                //get selected date
-            }
-
-            /*if (datagridViewrpt.Rows.Count > 0)
+            if (datagridViewrpt.Rows.Count > 0)
             {
                 // // creating Excel Application 
                 Microsoft.Office.Interop.Excel.Application xcelApp = new Microsoft.Office.Interop.Excel.Application();
@@ -113,15 +97,15 @@ namespace DiamalayPOS.Screens.GVentesF
 
 
                 //storing header part in Excel retrieve +1 
-                for (int i = 1; i < datagridViewrpt.Columns.Count ; i++)
+                for (int i = 1; i < datagridViewrpt.Columns.Count; i++)
                 {
                     xcelApp.Cells[1, i] = datagridViewrpt.Columns[i - 1].HeaderText;
                 }
 
                 // stored each row and column value in excel sheet
-                for (int i = 0; i < datagridViewrpt.Rows.Count - 1; i++)
+                for (int i = 0; i < datagridViewrpt.Rows.Count; i++)
                 {
-                    for (int j = 0; j < datagridViewrpt.Columns.Count - 1 ; j++)
+                    for (int j = 0; j < datagridViewrpt.Columns.Count - 1; j++)
                     {
                         xcelApp.Cells[i + 2, j + 1] = datagridViewrpt.Rows[i].Cells[j].Value.ToString();
                     }
@@ -130,7 +114,15 @@ namespace DiamalayPOS.Screens.GVentesF
                 // save excel sheet and show
                 xcelApp.Columns.AutoFit();
                 xcelApp.Visible = true;
-            }*/
+            }
+            else
+            {
+                // si la datagridview/datatable  ne contient aucune ligne c'est qu'il n' y a 
+                // aucune vente à ce jour alors afficher un msg ellogieux
+                MetroFramework.MetroMessageBox.Show(this, "\n\n\nAucune vente n'a eu lieu à ce jour !", "INFORMATION !", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            }
+
         }
 
         private DataTable getAllOperationByDateTime()
@@ -141,7 +133,7 @@ namespace DiamalayPOS.Screens.GVentesF
             using (SqlConnection con = new SqlConnection(ApplicationSettings.connectionString()))
             {
                 // creer une requette sql
-                using (SqlCommand cmd = new SqlCommand("usp_GET_operations_byDateTime", con))
+                using (SqlCommand cmd = new SqlCommand("usp_GET_operation_byDateTimes", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     // on a créer provisoirement une datetime 
@@ -154,5 +146,6 @@ namespace DiamalayPOS.Screens.GVentesF
                 }
             }
         }
+
     }
 }
